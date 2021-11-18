@@ -1,0 +1,4 @@
+---
+# file: roles/kubernetes-workers/tasks/main.yml
+
+- include_tasks: workers.yml

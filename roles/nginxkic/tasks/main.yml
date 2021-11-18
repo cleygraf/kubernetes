@@ -1,0 +1,17 @@
+---
+# file: roles/nginxkic/tasks/main.yml
+
+- include_tasks: buildkic.yml
+  tags: [ 'never', 'build' ]
+
+- include_tasks: deploykic.yml
+  tags: deploy
+
+- include_tasks: accesskic.yml
+  tags: [ 'never', 'access' ]
+
+- include_tasks: coffeetea.yml
+  tags: [ 'never', 'coffeetea' ]
+
+- include_tasks: metallb.yml
+  tags: [ 'never', 'metallb' ]

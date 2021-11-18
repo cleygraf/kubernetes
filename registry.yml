@@ -1,0 +1,7 @@
+---
+# file: registry.yml
+
+- hosts: masters[0]
+  gather_facts: no
+  roles:
+    - role: registry

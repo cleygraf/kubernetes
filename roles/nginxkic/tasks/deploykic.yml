@@ -1,0 +1,77 @@
+---
+# file: roles/nginxkic/deploykic.yml
+
+  - name: Create a namespace and a service account for the Ingress controller
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f common/ns-and-sa.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Create a cluster role and cluster role binding for the service account
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f rbac/rbac.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Create the App Protect role and role binding
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f rbac/ap-rbac.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Create a secret with a TLS certificate and a key for the default server in NGINX
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f common/default-server-secret.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Create a config map for customizing NGINX configuration
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f common/nginx-config.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Create an IngressClass resource
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f common/ingress-class.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Create cCreate an IngressClass resourceustom resource definitions for VirtualServer and VirtualServerRoute, TransportServer and Policy resources
+    ansible.builtin.shell: |
+      kubectl apply -f common/crds/k8s.nginx.org_virtualservers.yaml
+      kubectl apply -f common/crds/k8s.nginx.org_virtualserverroutes.yaml
+      kubectl apply -f common/crds/k8s.nginx.org_transportservers.yaml
+      kubectl apply -f common/crds/k8s.nginx.org_policies.yaml
+    args:
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Create a custom resource definition for GlobalConfiguration resource
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f common/crds/k8s.nginx.org_globalconfigurations.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Create a custom resource definition for APPolicy, APLogConf and APUserSig
+    ansible.builtin.shell: |
+      kubectl apply -f common/crds/appprotect.f5.com_aplogconfs.yaml
+      kubectl apply -f common/crds/appprotect.f5.com_appolicies.yaml
+      kubectl apply -f common/crds/appprotect.f5.com_apusersigs.yaml
+    args:
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy
+
+  - name: Modify deployment
+    ansible.builtin.lineinfile:
+      path: '~/kubernetes-ingress/deployments/deployment/nginx-plus-ingress.yaml'
+      regexp: '^(\s*- image: ).*'
+      line: \g<1>{{ myregistry }}/{{ mykicimage }}:{{kic_version}}
+      backrefs: yes
+    tags: deploy
+
+  - name: Create an ingress controller depoyment
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f deployment/nginx-plus-ingress.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    tags: deploy

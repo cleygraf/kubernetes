@@ -1,0 +1,20 @@
+---
+# file: roles/nginxkic/metallb.yml
+
+  - name: Install MetalLB
+    ansible.builtin.shell:
+      cmd: |
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/namespace.yaml
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.11.0/manifests/metallb.yaml
+      chdir: "~"
+    tags: metallb
+
+  - name: Copy metallb configmap
+    template: src=metallb_l2.yml dest=~/metallb_l2.yml
+    tags: metallb
+
+  - name: Apply metallb configmap
+    ansible.builtin.shell:
+      cmd: "kubectl apply -f metallb_l2.yml"
+      chdir: "~"
+    tags: metallb

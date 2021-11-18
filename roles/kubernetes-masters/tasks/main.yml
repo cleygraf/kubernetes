@@ -1,0 +1,4 @@
+---
+# file: roles/kubernetes-masters/tasks/main.yml
+
+- include_tasks: masters.yml

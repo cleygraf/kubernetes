@@ -1,0 +1,30 @@
+---
+# file: group_vars/all.yml
+
+# KIC version t use
+kic_version: "v2.0.3"
+
+# SSH key to use for user kube
+ssh_pubkey: "~/.ssh/id_rsa_christophleygrafv1.pub"
+
+# Default hosts file to manipulate
+hostsfile: "/etc/hosts"
+
+#
+# Infrastructure
+#
+basedomain: 'leyux.org'
+# Domain used as "production" environment
+subdomain: 'lab.{{ basedomain }}'
+# Registry to use (default is registry on 1st master node {{groups['masters'][0]}})
+myregistry: "{{groups['masters'][0]}}.{{subdomain}}:5000"
+# KIC image based on NGINX+ to build(debian-image-plus, debian-image-nap-plus, debian-image-opentracing-plus)
+mykicimage: debian-image-nap-plus
+# KIC service (loadbalancer, nodeport, none)
+mykicservice: loadbalancer
+
+#
+# Paths to binaries, certs ...
+#
+# Keys to access NGINX+ repositories
+nginxplus_cert_key_path: ~/nginx/certs

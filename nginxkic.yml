@@ -1,0 +1,10 @@
+---
+# file: nginxkic.yml
+
+- hosts: masters[0]
+  gather_facts: no
+  roles:
+    - role: nginxkic
+      become_user: kube
+      become: yes
+

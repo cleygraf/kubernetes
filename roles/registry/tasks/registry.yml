@@ -1,0 +1,16 @@
+---
+# file: roles/registry/registry.yml
+
+  - name: Stop and remove running registry container
+    shell: |
+            docker kill myregistry > /dev/null 2>&1
+            docker rm myregistry > /dev/null 2>&1
+    become_user: kube
+    become: yes
+    ignore_errors: yes
+
+  - name: Start a docker registry container
+    shell: |
+            docker run -d -p 5000:5000 --name myregistry registry:2
+    become_user: kube
+    become: yes

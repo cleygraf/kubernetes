@@ -1,0 +1,16 @@
+---
+# file: roles/nginxkic/accesskic.yml
+
+  - name: Create a service with the type NodePort
+    ansible.builtin.shell:
+      cmd: "kubectl create -f service/nodeport.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    when: mykicservice == "nodeport"
+    tags: access
+
+  - name: Create a service with the type LoadBalancer
+    ansible.builtin.shell:
+      cmd: "kubectl create -f service/loadbalancer.yaml"
+      chdir: "~/kubernetes-ingress/deployments"
+    when: mykicservice == "loadbalancer"
+    tags: access

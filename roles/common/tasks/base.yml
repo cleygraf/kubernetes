@@ -1,0 +1,47 @@
+---
+# file: roles/common/task/base.yml
+
+  - name: Set hostname according inventory variable
+    shell: "hostnamectl set-hostname {{new_hostname}}"
+    when: ( new_hostname is defined ) and ( ansible_facts['nodename'] != new_hostname )
+    register: renamed_host
+
+  - name: Set timezone to Europe/Berlin
+    timezone:
+      name: Europe/Berlin
+
+  - name: restart host if required
+    reboot:
+    when: renamed_host.changed|bool == True
+
+  # From https://www.cyberciti.biz/faq/ansible-apt-update-all-packages-on-ubuntu-debian-linux/
+  - name: Update apt repo and cache
+    apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+  - name: Pause for 10 seconds
+    pause:
+      seconds: 10
+
+  - name: Upgrade all packages
+    apt: upgrade=dist force_apt_get=yes
+
+  - name: Install a required packages
+    apt:
+      pkg:
+      - make
+      - tmux
+      - zsh
+
+  - name: Check if a reboot is needed
+    register: reboot_required_file
+    stat: path=/var/run/reboot-required get_md5=no
+
+  - name: Reboot the server if kernel updated
+    reboot:
+      msg: "Reboot initiated by Ansible for kernel updates"
+      connect_timeout: 5
+      reboot_timeout: 300
+      pre_reboot_delay: 0
+      post_reboot_delay: 30
+      test_command: uptime/kubernetes-ingress/
+    when: reboot_required_file.stat.exists

@@ -1,0 +1,48 @@
+---
+# file: roles/nginxkic/buildkic.yml
+
+  - name: Create temporary build directory
+    ansible.builtin.tempfile:
+      state: directory
+      suffix: ".git"
+    register: tempdir_1
+    tags: build
+
+  - name: Clone https://github.com/nginxinc/kubernetes-ingress/ to {{ tempdir_1.path }}
+    ansible.builtin.git:
+      repo: https://github.com/nginxinc/kubernetes-ingress/
+      dest: "{{ tempdir_1.path }}"
+    tags: build
+
+  - name: Checkout version "{{kic_version}}"
+    ansible.builtin.shell:
+      cmd: "git checkout {{kic_version}}"
+      chdir: "{{ tempdir_1.path }}"
+    tags: build
+
+  - name: Create symbolic link to local git repository 
+    file:
+      src: "{{ tempdir_1.path }}"
+      dest: "~/kubernetes-ingress"
+      state: link
+    tags: build
+
+  - name: Copy NGINX Plus repository certificate
+    ansible.builtin.copy: src={{ nginxplus_cert_key_path }}/nginx-repo.crt dest={{ tempdir_1.path }}/nginx-repo.crt
+    tags: build
+
+  - name: Copy NGINX Plus repository key
+    ansible.builtin.copy: src={{ nginxplus_cert_key_path }}/nginx-repo.key dest={{ tempdir_1.path }}/nginx-repo.key
+    tags: build
+
+  - name: Build KIC image
+    ansible.builtin.shell:
+      cmd: "make {{mykicimage}} PREFIX={{myregistry}}/{{mykicimage}} TARGET=container TAG={{kic_version}}"
+      chdir: "{{ tempdir_1.path }}"
+    tags: build
+
+  - name: Push KIC image
+    ansible.builtin.shell:
+      cmd: "make push PREFIX={{myregistry}}/{{mykicimage}} TAG={{kic_version}}"
+      chdir: "{{ tempdir_1.path }}"
+    tags: build

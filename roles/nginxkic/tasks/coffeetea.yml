@@ -1,0 +1,20 @@
+---
+# file: roles/nginxkic/coffeetea.yml
+
+  - name: Create the coffee and the tea deployments and services
+    ansible.builtin.shell:
+      cmd: "kubectl create -f cafe.yaml"
+      chdir: "~/kubernetes-ingress//examples/complete-example"
+    tags: coffeetea
+
+  - name: Create a secret with an SSL certificate and a key
+    ansible.builtin.shell:
+      cmd: "kubectl create -f cafe-secret.yaml"
+      chdir: "~/kubernetes-ingress//examples/complete-example"
+    tags: coffeetea
+
+  - name: Create an Ingress resource
+    ansible.builtin.shell:
+      cmd: "kubectl create -f cafe-ingress.yaml"
+      chdir: "~/kubernetes-ingress//examples/complete-example"
+    tags: coffeetea

@@ -1,0 +1,12 @@
+---
+# file: kubernetes.yml
+
+- hosts: masters
+  roles:
+    - role: kubernetes-masters
+      become: yes
+
+- hosts: workers
+  roles:
+    - role: kubernetes-workers
+      become: yes
