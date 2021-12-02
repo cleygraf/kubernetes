@@ -41,7 +41,7 @@
       chdir: "{{ tempdir_1.path }}"
     tags: build
 
-  - name: Push KIC image
+  - name: Push KIC image "{{mykicimage}}:{{kic_version}}" to "{{ myregistry }}"
     ansible.builtin.shell:
       cmd: "make push PREFIX={{myregistry}}/{{mykicimage}} TAG={{kic_version}}"
       chdir: "{{ tempdir_1.path }}"
