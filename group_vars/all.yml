@@ -17,7 +17,8 @@ basedomain: 'leyux.org'
 # Domain used as "production" environment
 subdomain: 'lab.{{ basedomain }}'
 # Registry to use (default is registry on 1st master node {{groups['masters'][0]}})
-myregistry: "{{groups['masters'][0]}}.{{subdomain}}:5000"
+#myregistry: "{{groups['masters'][0]}}.{{subdomain}}:5000"
+myregistry: registry.wn.leyux.org:5000
 # KIC image based on NGINX+ to build(debian-image-plus, debian-image-nap-plus, debian-image-opentracing-plus)
 mykicimage: debian-image-nap-plus
 # KIC service (loadbalancer, nodeport, none)
